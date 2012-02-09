@@ -47,27 +47,14 @@ class StackAd extends WP_Widget
           "site=$site&key={$this->api_key}";
         
         // First attempt to retrieve the data from the cache
-        $data = get_transient('stackad_' . md5($url));
+        $data = get_site_transient('stackad_' . md5($url));
         if($data !== FALSE)
             return $data;
         
-        // Initialize curl and set the options
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // Make the request
+        $data = wp_remote_retrieve_body(wp_remote_get($url));
         
-        // Fetch the data from curl
-        $data = curl_exec($ch);
-        if($data === FALSE)
-        {
-            $error_desc = curl_error($ch);
-            curl_close($ch);
-            throw new Exception(__('could not retreive data from the API - ') . "$error_desc.");
-        }
-        
-        // Close the curl handle and decode the JSON
-        curl_close($ch);
+        // Decode the data
         $json = json_decode($data, TRUE);
         if($json === null)
             throw new Exception(__('could not decode JSON data returned by the API.'));
@@ -86,7 +73,7 @@ class StackAd extends WP_Widget
         
         // Cache the data - note that we use the hash of the URL since there is a limit
         // on the length of the name of the transient.
-        set_transient('stackad_' . md5($url), $json['items'], 21600);
+        set_site_transient('stackad_' . md5($url), $json['items'], 21600);
         
         // Return the JSON data
         return $json['items'];
