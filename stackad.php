@@ -46,6 +46,11 @@ class StackAd extends WP_Widget
         $url = "http://api.stackexchange.com/2.0$method" . ((strpos($method, '?') === FALSE)?'?':'&') .
           "site=$site&key={$this->api_key}";
         
+        // First attempt to retrieve the data from the cache
+        $data = get_transient('stackad_' . md5($url));
+        if($data !== FALSE)
+            return $data;
+        
         // Initialize curl and set the options
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -69,7 +74,7 @@ class StackAd extends WP_Widget
         
         // Ensure 'error_message' is not present in the response
         if(isset($json['error_message']))
-            throw new Exception($json['error_message']);
+            throw new Exception("{$json['error_message']}.");
         
         // Ensure 'items' is in the response
         if(!isset($json['items']))
@@ -78,6 +83,10 @@ class StackAd extends WP_Widget
         // If the caller wanted to make sure items was not empty, check that now
         if(!$can_be_empty && !count($json['items']))
             throw new Exception(__('no items were returned in the response.'));
+        
+        // Cache the data - note that we use the hash of the URL since there is a limit
+        // on the length of the name of the transient.
+        set_transient('stackad_' . md5($url), $json['items'], 21600);
         
         // Return the JSON data
         return $json['items'];
