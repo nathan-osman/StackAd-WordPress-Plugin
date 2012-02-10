@@ -7,7 +7,7 @@ Description: StackAd provides an easy way to advertise open source projects on y
 Version: 1.0
 Author: Nathan Osman
 Author URI: http://quickmediasolutions.com/nathan-osman
-License: GPL3
+License: GPL2
 */
 
 /*
