@@ -13,7 +13,7 @@ Want to display advertisements for open source projects on your blog? StackAd ma
 
 == Installation ==
 
-1. Upload `stackad.php` to the `/wp-content/plugins/` directory.
+1. Upload the directory `stackad` to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
 1. Add the widget to the page by visiting 'Appearance -> Widgets'.
 
