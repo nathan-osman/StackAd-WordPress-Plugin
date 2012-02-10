@@ -29,4 +29,5 @@ You sure can. There is nothing stopping you from having as many instances as you
 
 == Screenshots ==
 
-1. StackAd displaying advertisements from [Ask Ubuntu](http://askubuntu.com).
+1. StackAd displaying advertisements from [Super User](http://superuser.com).
+2. Specifying a site when inserting the widget.

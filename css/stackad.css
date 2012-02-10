@@ -1,0 +1,45 @@
+/*
+StackAd - Making it easy to display community ads on your blog.
+Copyright (C) 2012  Nathan Osman
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+.stackad {
+    display: block;
+    height: 250px;
+    overflow: hidden;
+    padding: 0px;
+    position: relative;
+    width: 220px;
+}
+
+.stackad img {
+    margin: 0px !important;
+}
+
+.stackad .popup {
+    background-color: #000;
+    left: 0px;
+    opacity: 0.8;
+    position: absolute;
+    top: 250px;
+    width: 220px;
+}
+
+.stackad .popup div {
+    color: #fff;
+    font-size: 14px !important;
+    padding: 4px;
+}

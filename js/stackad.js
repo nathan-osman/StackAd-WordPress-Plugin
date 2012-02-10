@@ -16,3 +16,26 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// This little shortcut allows us to use '$' within the context
+// of this function while keeping it from polluting anything.
+(function($) {
+    
+    $(document).ready(function() {
+        
+        $('.widget_stackad a').each(function() {
+            
+            // Create the popup <div>
+            var popup_div = $('<div class="popup"><div>' + this.dataset['score'] + ' votes | <a href="' + this.dataset['link'] + '">vote</a><a href="' +  + '">question</a></div></div>');
+            
+            // Have it slide up
+            $(this).hover(function() { popup_div.stop().animate({ 'top': (250 - popup_div.height()) + 'px' }, 'fast'); },
+                          function() { popup_div.animate({ 'top': '250px' }, 'fast'); });
+            
+            // Insert it after the img
+            $(this).append(popup_div);
+            
+        });
+        
+    });
+    
+})(jQuery);

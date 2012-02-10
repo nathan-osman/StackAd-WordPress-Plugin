@@ -86,7 +86,7 @@ class StackAd extends WP_Widget
         $questions = $this->RetrieveJSON($site_domain, '/questions?tagged=community-ads&sort=creation&pagesize=1');
         
         // Now retrieve the answers for that question that meet the minimum crieterion
-        $answers = $this->RetrieveJSON($site_domain, "/questions/{$questions[0]['question_id']}/answers?filter=!))aJblQ&min=6&pagesize=100", TRUE);
+        $answers = $this->RetrieveJSON($site_domain, "/questions/{$questions[0]['question_id']}/answers?filter=!)rZRqQl25kll_DesFssj&min=6&pagesize=100", TRUE);
         
         // Make sure there are ads and then pick one at random
         if(!count($answers))
@@ -94,13 +94,13 @@ class StackAd extends WP_Widget
         else
         {
             // Pick one at random
-            $random_item = array_rand($answers);
+            $random_item = $answers[array_rand($answers)];
             
             // Extract the image URL
-            if(!preg_match('/a href="(.*?)".*?img src="(.*?)"/', $answers[$random_item]['body'], $matches))
+            if(!preg_match('/a href="(.*?)".*?img src="(.*?)"/', $random_item['body'], $matches))
                 throw new Exception(__('post body did not contain an image.', 'stackad'));
             
-            echo "<a href='{$matches[1]}'><img src='{$matches[2]}' class='aligncenter' style='width: 220px; height: 250px;' /></a>";
+            echo "<a href='{$matches[1]}' class='aligncenter stackad' data-score='{$random_item['score']}' data-link='{$random_item['link']}'><img src='{$matches[2]}' /></a>";
         }
     }
     
@@ -163,13 +163,19 @@ class StackAd extends WP_Widget
 // Register the widget
 add_action('widgets_init', create_function('', 'register_widget("StackAd");'));
 
-// Load the helper script
-function load_stackad()
+// Load the helper CSS + script
+function load_stackad_script()
 {
+    // Load CSS files
+    wp_register_style('stackad', plugins_url('css/stackad.css', __FILE__));
+    wp_enqueue_style('stackad');
+    
+    // Load JS files
     wp_register_script('stackad', plugins_url('js/stackad.js', __FILE__), array('jquery'));
     wp_enqueue_script('stackad');
 }
 
-add_action('wp_enqueue_scripts', 'load_stackad');
+// Enqueue the script
+add_action('wp_enqueue_scripts', 'load_stackad_script');
 
 ?>
