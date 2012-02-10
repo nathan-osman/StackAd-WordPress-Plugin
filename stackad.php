@@ -44,7 +44,7 @@ class StackAd extends WP_Widget
     {
         // Generate the final URL
         $url = "http://api.stackexchange.com/2.0$method" . ((strpos($method, '?') === FALSE)?'?':'&') .
-          "site=$site&key={$this->api_key}";
+          (($site != '')?"site=$site&":'') . "key={$this->api_key}";
         
         // First attempt to retrieve the data from the cache
         $data = get_site_transient('stackad_' . md5($url));
@@ -73,7 +73,7 @@ class StackAd extends WP_Widget
         
         // Cache the data - note that we use the hash of the URL since there is a limit
         // on the length of the name of the transient.
-        set_site_transient('stackad_' . md5($url), $json['items'], 21600);
+        set_site_transient('stackad_' . md5($url), $json['items'], 86400);
         
         // Return the JSON data
         return $json['items'];
@@ -124,13 +124,39 @@ class StackAd extends WP_Widget
     // Displays the form for customizing the widget instance
     function form($instance)
     {
-        if($instance) $site_domain = esc_attr($instance['site_domain']);
-        else          $site_domain = '';
-        
-        echo '<p><label for="' . $this->get_field_id('site_domain') . '">' . __('Site domain:', 'stackad');
-        echo '</label><input type="text" id="' . $this->get_field_id('site_domain') . '" name="';
-        echo $this->get_field_name('site_domain') . '" value="' . $site_domain;
-        echo '" class="widefat" placeholder="ex. stackoverflow.com" /></p>';
+        try
+        {
+            // Retrieve the existing values for settings
+            if($instance)
+            {
+                $site_domain = esc_attr($instance['site_domain']);
+            }
+            else
+            {
+                $site_domain = '';
+            }
+            
+            // Fetch all of the sites from the API (this is a rather large request - thankfully it's cached)
+            $sites = $this->RetrieveJSON('', '/sites?filter=!)Qgc_bd3w)nu4p392tUdIebg&pagesize=999');
+            
+            echo '<p><label for="' . $this->get_field_id('site_domain') . '">' . __('Display ads from:', 'stackad');
+            echo '</label><select id="' . $this->get_field_id('site_domain') . '" name="';
+            echo $this->get_field_name('site_domain') . '" class="widefat">';
+            
+            // Display the list of sites
+            foreach($sites as $site)
+                if($site['site_state'] != 'linked_meta' && $site['api_site_parameter'] != 'stackapps')
+                {
+                    $selected = ($site_domain == $site['api_site_parameter'])?' selected="selected"':'';
+                    echo "<option value='{$site['api_site_parameter']}'$selected>{$site['name']}</option>";
+                }
+            
+            echo '</select></p>';
+        }
+        catch(Exception $e)
+        {
+            echo '<code>' . __('Error: ', 'stackad') . $e->getMessage() . '</code>';
+        }
     }
 }
 
