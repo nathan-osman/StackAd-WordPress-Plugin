@@ -57,7 +57,7 @@ class StackAd extends WP_Widget
         // Decode the data
         $json = json_decode($data, TRUE);
         if($json === null)
-            throw new Exception(__('could not decode JSON data returned by the API.'));
+            throw new Exception(__('could not decode JSON data returned by the API.', 'stackad'));
         
         // Ensure 'error_message' is not present in the response
         if(isset($json['error_message']))
@@ -65,11 +65,11 @@ class StackAd extends WP_Widget
         
         // Ensure 'items' is in the response
         if(!isset($json['items']))
-            throw new Exception(__('"items" missing from JSON response.'));
+            throw new Exception(__('"items" missing from JSON response.', 'stackad'));
         
         // If the caller wanted to make sure items was not empty, check that now
         if(!$can_be_empty && !count($json['items']))
-            throw new Exception(__('no items were returned in the response.'));
+            throw new Exception(__('no items were returned in the response.', 'stackad'));
         
         // Cache the data - note that we use the hash of the URL since there is a limit
         // on the length of the name of the transient.
@@ -90,7 +90,7 @@ class StackAd extends WP_Widget
         
         // Make sure there are ads and then pick one at random
         if(!count($answers))
-            echo __('There are currently no ads to display.');
+            echo __('There are currently no ads to display.', 'stackad');
         else
         {
             // Pick one at random
@@ -98,7 +98,7 @@ class StackAd extends WP_Widget
             
             // Extract the image URL
             if(!preg_match('/a href="(.*?)".*?img src="(.*?)"/', $answers[$random_item]['body'], $matches))
-                throw new Exception(__('post body did not contain an image.'));
+                throw new Exception(__('post body did not contain an image.', 'stackad'));
             
             echo "<a href='{$matches[1]}'><img src='{$matches[2]}' class='aligncenter' style='width: 220px; height: 250px;' /></a>";
         }
@@ -115,7 +115,7 @@ class StackAd extends WP_Widget
         }
         catch(Exception $e)
         {
-            echo '<code>' . __('Error: ') . $e->getMessage() . '</code>';
+            echo '<code>' . __('Error: ', 'stackad') . $e->getMessage() . '</code>';
         }
         
         echo $args['after_widget'];
@@ -127,7 +127,7 @@ class StackAd extends WP_Widget
         if($instance) $site_domain = esc_attr($instance['site_domain']);
         else          $site_domain = '';
         
-        echo '<p><label for="' . $this->get_field_id('site_domain') . '">' . __('Site domain:');
+        echo '<p><label for="' . $this->get_field_id('site_domain') . '">' . __('Site domain:', 'stackad');
         echo '</label><input type="text" id="' . $this->get_field_id('site_domain') . '" name="';
         echo $this->get_field_name('site_domain') . '" value="' . $site_domain;
         echo '" class="widefat" placeholder="ex. stackoverflow.com" /></p>';
