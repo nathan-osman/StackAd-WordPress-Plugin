@@ -22,17 +22,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     overflow: hidden;
     padding: 0px;
     position: relative;
+    text-decoration: none !important;
     width: 220px;
 }
 
 .stackad img {
     margin: 0px !important;
+    max-width: 100% !important;
 }
 
 .stackad .popup {
     background-color: #000;
     left: 0px;
-    opacity: 0.8;
+    opacity: 0.85;
     position: absolute;
     top: 250px;
     width: 220px;
@@ -42,4 +44,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     color: #fff;
     font-size: 14px !important;
     padding: 4px;
+}
+
+.stackad .popup div a {
+    color: #57f;
+    font-weight: bold;
 }

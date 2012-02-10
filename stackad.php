@@ -86,7 +86,7 @@ class StackAd extends WP_Widget
         $questions = $this->RetrieveJSON($site_domain, '/questions?tagged=community-ads&sort=creation&pagesize=1');
         
         // Now retrieve the answers for that question that meet the minimum crieterion
-        $answers = $this->RetrieveJSON($site_domain, "/questions/{$questions[0]['question_id']}/answers?filter=!)rZRqQl25kll_DesFssj&min=6&pagesize=100", TRUE);
+        $answers = $this->RetrieveJSON($site_domain, "/questions/{$questions[0]['question_id']}/answers?filter=!)rZRqQl25kll_DesFssj&min=6&pagesize=100&sort=votes", TRUE);
         
         // Make sure there are ads and then pick one at random
         if(!count($answers))
@@ -109,6 +109,11 @@ class StackAd extends WP_Widget
     {
         echo $args['before_widget'];
         
+        // Display the title if provided
+        $title = apply_filters('widget_title', $instance['title']);
+        if($title != '')
+            echo $args['before_title'] . $title . $args['after_title'];
+        
         try
         {
             $this->GenerateHTML("meta.{$instance['site_domain']}");
@@ -129,29 +134,49 @@ class StackAd extends WP_Widget
             // Retrieve the existing values for settings
             if($instance)
             {
-                $site_domain = esc_attr($instance['site_domain']);
+                $site_domain = $instance['site_domain'];
+                $title       = esc_attr($instance['title']);
             }
             else
             {
                 $site_domain = '';
+                $title       = '';
             }
             
             // Fetch all of the sites from the API (this is a rather large request - thankfully it's cached)
             $sites = $this->RetrieveJSON('', '/sites?filter=!)Qgc_bd3w)nu4p392tUdIebg&pagesize=999');
             
-            echo '<p><label for="' . $this->get_field_id('site_domain') . '">' . __('Display ads from:', 'stackad');
-            echo '</label><select id="' . $this->get_field_id('site_domain') . '" name="';
-            echo $this->get_field_name('site_domain') . '" class="widefat">';
+            ?>
+            <p>
+              <label for='<?php echo $this->get_field_id('title'); ?>'>
+                <?php echo __('Title: ', 'stackad'); ?>
+              </label>
+              <input type='text'
+                     id='<?php echo $this->get_field_id('title'); ?>'
+                     name='<?php echo $this->get_field_name('title'); ?>'
+                     value='<?php echo $title; ?>'
+                     class='widefat' />
+              <br /><br />
+              <label for='<?php echo $this->get_field_id('site_domain'); ?>'>
+                <?php echo __('Display ads from:', 'stackad'); ?>
+              </label>
+              <select id='<?php echo $this->get_field_id('site_domain'); ?>'
+                      name='<?php echo $this->get_field_name('site_domain'); ?>'
+                      class='widefat'>
+            <?php
             
             // Display the list of sites
             foreach($sites as $site)
                 if($site['site_state'] != 'linked_meta' && $site['api_site_parameter'] != 'stackapps')
                 {
                     $selected = ($site_domain == $site['api_site_parameter'])?' selected="selected"':'';
-                    echo "<option value='{$site['api_site_parameter']}'$selected>{$site['name']}</option>";
+                    echo "<option value='{$site['api_site_parameter']}'$selected>{$site['name']}</option>\n";
                 }
             
-            echo '</select></p>';
+            ?>
+              </select>
+            </p>
+            <?php
         }
         catch(Exception $e)
         {
