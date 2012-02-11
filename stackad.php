@@ -82,9 +82,14 @@ class StackAd extends WP_Widget
         $data = get_site_transient('stackad_' . md5($url));
         if($data !== FALSE)
             return $data;
-        
-        // Make the request
-        $data = wp_remote_retrieve_body(wp_remote_get($url));
+
+		// Make the request
+		$response = wp_remote_get( $url );
+
+		if ( is_wp_error( $response ) )
+			throw new Exception( $response->get_error_message() );
+
+		$data = wp_remote_retrieve_body( $response );
         
         // Decode the data
         $json = json_decode($data, TRUE);
