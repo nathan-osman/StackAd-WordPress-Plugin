@@ -38,6 +38,38 @@ class StackAd extends WP_Widget
     {
         parent::WP_Widget('stackad', 'StackAd', array('description' => 'Stack Exchange Community Ads'));
     }
+
+	static function on_load() {
+
+		add_action( 'init', array( __CLASS__, 'init' ) );
+		add_action( 'widgets_init', array( __CLASS__, 'widgets_init' ) );
+	}
+
+	static function init() {
+
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
+	}
+
+	/**
+	 * Register the widget
+	 */
+	static function widgets_init() {
+
+		register_widget( __CLASS__ );
+	}
+
+	/**
+	 * Register the helper CSS + script
+	 */
+	static function wp_enqueue_scripts() {
+
+		// Enqueue CSS file
+    wp_register_style('stackad', plugins_url('css/stackad.css', __FILE__));
+    wp_enqueue_style('stackad');
+
+    // Register JS file
+    wp_register_script('stackad', plugins_url('js/stackad.js', __FILE__), array('jquery'), false, true);
+	}
     
     // Retreives JSON data from the API
     function RetrieveJSON($site, $method, $can_be_empty=FALSE)
@@ -50,9 +82,14 @@ class StackAd extends WP_Widget
         $data = get_site_transient('stackad_' . md5($url));
         if($data !== FALSE)
             return $data;
-        
-        // Make the request
-        $data = wp_remote_retrieve_body(wp_remote_get($url));
+
+		// Make the request
+		$response = wp_remote_get( $url );
+
+		if ( is_wp_error( $response ) )
+			throw new Exception( $response->get_error_message() );
+
+		$data = wp_remote_retrieve_body( $response );
         
         // Decode the data
         $json = json_decode($data, TRUE);
@@ -100,13 +137,15 @@ class StackAd extends WP_Widget
             if(!preg_match('/a href="(.*?)".*?img src="(.*?)"/', $random_item['body'], $matches))
                 throw new Exception(__('post body did not contain an image.', 'stackad'));
             
-            echo "<a href='{$matches[1]}' class='aligncenter stackad' data-score='{$random_item['score']}' data-link='{$random_item['link']}'><img src='{$matches[2]}' /></a>";
+            echo "<a href='" . esc_attr( $matches[1] ) . "' class='aligncenter stackad' data-score='" . esc_attr( $random_item['score'] ) . "' data-link='" . esc_attr( $random_item['link'] ) . "'><img src='" . esc_attr( $matches[2] ) . "' /></a>";
         }
     }
     
     // Displays an instance of the widget
     function widget($args, $instance)
     {
+			wp_enqueue_script('stackad');
+
         echo $args['before_widget'];
         
         // Display the title if provided
@@ -185,22 +224,6 @@ class StackAd extends WP_Widget
     }
 }
 
-// Register the widget
-add_action('widgets_init', create_function('', 'register_widget("StackAd");'));
-
-// Load the helper CSS + script
-function load_stackad_script()
-{
-    // Load CSS files
-    wp_register_style('stackad', plugins_url('css/stackad.css', __FILE__));
-    wp_enqueue_style('stackad');
-    
-    // Load JS files
-    wp_register_script('stackad', plugins_url('js/stackad.js', __FILE__), array('jquery'));
-    wp_enqueue_script('stackad');
-}
-
-// Enqueue the script
-add_action('wp_enqueue_scripts', 'load_stackad_script');
+StackAd::on_load();
 
 ?>
