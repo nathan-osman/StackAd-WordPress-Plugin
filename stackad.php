@@ -137,7 +137,7 @@ class StackAd extends WP_Widget
             if(!preg_match('/a href="(.*?)".*?img src="(.*?)"/', $random_item['body'], $matches))
                 throw new Exception(__('post body did not contain an image.', 'stackad'));
             
-            echo "<a href='{$matches[1]}' class='aligncenter stackad' data-score='{$random_item['score']}' data-link='{$random_item['link']}'><img src='{$matches[2]}' /></a>";
+            echo "<a href='" . esc_attr( $matches[1] ) . "' class='aligncenter stackad' data-score='" . esc_attr( $random_item['score'] ) . "' data-link='" . esc_attr( $random_item['link'] ) . "'><img src='" . esc_attr( $matches[2] ) . "' /></a>";
         }
     }
     
